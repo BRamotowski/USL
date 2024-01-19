@@ -51,6 +51,9 @@ health$Stress.Level =  ifelse(health$Stress.Level<=2, "Very low stressed",
                                          ifelse(health$Stress.Level<=8, "Stressed",
                                                 ifelse(health$Stress.Level>8, "Very stressed",NA)))))                                                 
 
+summary(health$Heart.Rate)
+
+ 
 
 summary(health$Blood.Pressure)
 #Blood Preasue variable is charactr data type
