@@ -47,6 +47,7 @@ health$Quality.of.Sleep =  ifelse(health$Quality.of.Sleep<=4, "Low quality sleep
                                   ifelse(health$Quality.of.Sleep<=6, "Medium quality sleep",
                                          ifelse(health$Quality.of.Sleep<=8, "Good quality sleep",
                                                 ifelse(health$Quality.of.Sleep>8, "Very good quality sleep",NA))))                                                 
+summary(health$Stress.Level)
 
 summary(health$Blood.Pressure)
 #Blood Preasue variable is charactr data type
