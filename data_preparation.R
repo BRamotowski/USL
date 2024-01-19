@@ -39,15 +39,18 @@ health$Quality.of.Sleep =  ifelse(health$Quality.of.Sleep<=4, "Low quality sleep
 
 summary(health$Physical.Activity.Level)
 ## phisical activti level is given in minutes per day 
-health$Physical.Activity.Level =  ifelse(health$Physical.Activity.Level<=30, "under 30 min of physical activity a day", 
+health$Physical.Activity.Level =  ifelse(health$Physical.Activity.Level<=30, "Under 30 min of physical activity a day", 
                                   ifelse(health$Physical.Activity.Level<=60, "30-60 min of physical activity a day",
-                                         ifelse(health$Physical.Activity.Level>60, "over 60 min of physical activity a day",NA)))
+                                         ifelse(health$Physical.Activity.Level>60, "Over 60 min of physical activity a day",NA)))
 
-health$Quality.of.Sleep =  ifelse(health$Quality.of.Sleep<=4, "Low quality sleep", 
-                                  ifelse(health$Quality.of.Sleep<=6, "Medium quality sleep",
-                                         ifelse(health$Quality.of.Sleep<=8, "Good quality sleep",
-                                                ifelse(health$Quality.of.Sleep>8, "Very good quality sleep",NA))))                                                 
 summary(health$Stress.Level)
+
+health$Stress.Level =  ifelse(health$Stress.Level<=2, "Very low stressed",
+                            ifelse(health$Stress.Level<=4, "Low stressed", 
+                                  ifelse(health$Stress.Level<=6, "Medium stressed",
+                                         ifelse(health$Stress.Level<=8, "Stressed",
+                                                ifelse(health$Stress.Level>8, "Very stressed",NA)))))                                                 
+
 
 summary(health$Blood.Pressure)
 #Blood Preasue variable is charactr data type
