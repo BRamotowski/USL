@@ -51,9 +51,43 @@ health$Stress.Level =  ifelse(health$Stress.Level<=2, "Very low stressed",
                                          ifelse(health$Stress.Level<=8, "Stressed",
                                                 ifelse(health$Stress.Level>8, "Very stressed",NA)))))                                                 
 
-summary(health$Heart.Rate)
-
- 
-
 summary(health$Blood.Pressure)
 #Blood Preasue variable is charactr data type
+
+summary(health$Heart.Rate)
+##https://www.physio-pedia.com/Heart_Rate
+health$Heart.Rate =  ifelse(health$Heart.Rate<=55, "Excellent heart rate", 
+                     ifelse(health$Heart.Rate<=65, "Good heart rate",
+                     ifelse(health$Heart.Rate<=75, "Avrage heart rate",
+                     ifelse(health$Heart.Rate<=85, "Poor heart rate",       
+                     ifelse(health$Heart.Rate>85, "Bad heart rate",NA)))))
+
+summary(health$Daily.Steps)
+## https://www.10000steps.org.au/articles/healthy-lifestyles/counting-steps/
+health$Daily.Steps =  ifelse(health$Daily.Steps<=5000, "Sedentary daily steps", 
+                            ifelse(health$Daily.Steps<=7499, "Low daily steps",
+                                   ifelse(health$Daily.Steps<=9999, "Somewhat active daily steps",
+                                          ifelse(health$Daily.Steps<=12499, "Active daily steps",       
+                                                 ifelse(health$Daily.Steps>12500, "Highly active daily steps",NA)))))
+
+health_clean=health[c(2:13)]
+
+write.csv(health_clean, file = 'health_clean.csv')
+
+transactions = read.transactions('health_clean.csv', format='basket', sep=',', skip=0)
+inspect(transactions)
+size(transactions) 
+length(transactions)
+
+#stressed rule
+rulesStressed<-apriori(data=transactions, parameter=list(supp=0.1, conf=0.1), appearance=list(default="lhs", rhs="Stressed"), control=list(verbose=F)) 
+rulesStressedSorted<-sort(rulesStressed, by="confidence", decreasing=TRUE)
+inspect(head(rulesStressedSorted))
+#overweight rule
+rulesOverweight<-apriori(data=transactions, parameter=list(supp=0.1, conf=0.1), appearance=list(default="lhs", rhs="Overweight"), control=list(verbose=F)) 
+rulesOverweightSorted<-sort(rulesOverweight, by="confidence", decreasing=TRUE)
+inspect(head(rulesOverweightSorted))
+#Insomnia rule
+rulesInsomnia<-apriori(data=transactions, parameter=list(supp=0.1, conf=0.1), appearance=list(default="lhs", rhs="Insomnia"), control=list(verbose=F)) 
+rulesInsomniaSorted<-sort(rulesInsomnia, by="confidence", decreasing=TRUE)
+inspect(head(rulesInsomniaSorted))
