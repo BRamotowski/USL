@@ -1,2 +1,0 @@
-# USL
-aassociation rules
