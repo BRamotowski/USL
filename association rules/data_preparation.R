@@ -70,6 +70,12 @@ health$Daily.Steps =  ifelse(health$Daily.Steps<=5000, "Sedentary daily steps",
                                           ifelse(health$Daily.Steps<=12499, "Active daily steps",       
                                                  ifelse(health$Daily.Steps>12500, "Highly active daily steps",NA)))))
 
+summary(health$BMI.Category)
+unique(health$BMI.Category)
+health$BMI.Category =ifelse(health$BMI.Category=="Normal", "Normal weight",
+                            ifelse(health$BMI.Category=="Overweight", "Overweight",
+                                   ifelse(health$BMI.Category=="Obese", "Obese",NA)))
+
 health_clean=health[c(2:13)]
 
 write.csv(health_clean, file = 'health_clean.csv')
@@ -78,6 +84,17 @@ transactions = read.transactions('health_clean.csv', format='basket', sep=',', s
 inspect(transactions)
 size(transactions) 
 length(transactions)
+
+round(itemFrequency(transactions),3) %>% sort(.,decreasing=T)
+
+ctab<-crossTable(transactions, sort=TRUE) 
+ctab<-crossTable(transactions, measure="count", sort=TRUE) 
+head(ctab,5)
+
+#standard rules
+rules.transactions<-apriori(transactions, parameter=list(supp=0.1, conf=0.5))
+rules.transactionsSorted<-sort(rules.transactions, by="lift", decreasing=TRUE)
+inspect(head(rules.transactionsSorted))
 
 #stressed rule
 rulesStressed<-apriori(data=transactions, parameter=list(supp=0.1, conf=0.1), appearance=list(default="lhs", rhs="Stressed"), control=list(verbose=F)) 
