@@ -38,6 +38,8 @@ health[!complete.cases(health), ]
 
 is.na(health)
 
+health_int=health[,c(1,3,4,5,6,7,8,11,12)]
+str(health_int)
 
 #converting chr to factor
 health$Gender<-as.factor(health$Gender)
@@ -46,11 +48,7 @@ health$BMI.Category<-as.factor(health$BMI.Category)
 health$Blood.Pressure <-as.factor(health$Blood.Pressure)
 health$Sleep.Disorder  <-as.factor(health$Sleep.Disorder)
 
-health_int=health[,c(1,3,4,5,6,7,8,11,12)]
-str(health_int)
-
-
-#converting factor to numeric - 
+#converting factor to numeric 
 health$Gender<-as.numeric(health$Gender)
 health$Occupation<-as.numeric(health$Occupation)
 health$BMI.Category<-as.numeric(health$BMI.Category)
@@ -88,24 +86,16 @@ c <- fviz_nbclust(health_scaled, FUNcluster = cluster::clara, method = "silhouet
 d <- fviz_nbclust(health_scaled, FUNcluster = hcut, method = "silhouette") + theme_classic() 
 e <- fviz_nbclust(health_scaled, FUNcluster = cluster::fanny, method = "silhouette") + theme_classic() 
 grid.arrange(a, b, c, d, e, ncol=2)
-
+a
 
 
 library(factoextra)
 
-get_clust_tendency(health, 2, graph=TRUE, gradient=list(low="blue",  high="white"), seed=1234)
 
-# let's try with 5 clusters
-health_clusters <- kmeans(health, 5)
-
-# check sizes of these clusters 
-health_clusters$size
-
-sil<-silhouette(health_clusters$cluster, dist(health))
-fviz_silhouette(sil)
 
 # optimal number of clusters - elbow
-opt<-Optimal_Clusters_KMeans(health_int, max_clusters=10, plot_clusters = TRUE)
+opt<-Optimal_Clusters_KMeans(health_scaled, max_clusters=10, plot_clusters = TRUE)
 
+get_clust_tendency(health_scaled, 2, graph=TRUE, gradient=list(low="blue",  high="white"), seed=1234)
 # optimal number of clusters - silhouette
-opt<-Optimal_Clusters_KMeans(health_int, max_clusters=10, plot_clusters=TRUE, criterion="silhouette")
+opt<-Optimal_Clusters_KMeans(health_scaled, max_clusters=10, plot_clusters=TRUE, criterion="silhouette")
