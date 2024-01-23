@@ -30,21 +30,6 @@ health
 #chcking data structure
 str(health)
 
-
-#plot columns
-hist(health$Stress.Level)
-hist(health$Sleep.Duration)
-hist(health$Quality.of.Sleep)
-
-
-for (i in colnames(health)) {
-  hist(health[,i], main = paste("Plot of ", i))
-}
-
-str(health)
-
-dist(health$Quality.of.Sleep)
-
 #data summary
 summary(health)
 
@@ -52,8 +37,6 @@ summary(health)
 health[!complete.cases(health), ]
 
 is.na(health)
-
-
 
 #converting chr to factor
 health$Gender<-as.factor(health$Gender)
@@ -69,9 +52,20 @@ health$BMI.Category<-as.numeric(health$BMI.Category)
 health$Blood.Pressure <-as.numeric(health$Blood.Pressure)
 health$Sleep.Disorder  <-as.numeric(health$Sleep.Disorder)
 
+write.csv(health, file = 'health_num.csv')
 
-str(health)
-health
+health<-read.csv('health_num.csv')
+
+#plot columns
+hist(health$Stress.Level)
+hist(health$Sleep.Duration)
+hist(health$Quality.of.Sleep)
+
+
+for (i in colnames(health)) {
+  hist(health[,i], main = paste("Plot of ", i))
+}
+
 
 
 #correlation matrix 
@@ -82,13 +76,11 @@ M <- cor(health_matrix)
 corrplot(M, method = "number", number.cex = 0.75, order="hclust")
 
 
-
-
-
-
-
 #scaling values
 health_scaled<-scale(health)
+
+
+##clustering
 
 a <- fviz_nbclust(health_scaled, FUNcluster = kmeans, method = "silhouette") + theme_classic() 
 b <- fviz_nbclust(health_scaled, FUNcluster = cluster::pam, method = "silhouette") + theme_classic() 
@@ -102,11 +94,29 @@ c
 d
 e
 
+
 health_clusters_kmeans<- kmeans(health_scaled, 4)
 
 health_clusters_kmeans$size
 health_clusters_kmeans$cluster
 health$cluster<-health_clusters_kmeans$cluster
+
+
+
+
+health_clusters_hcut<- hcut(health_scaled, 4)
+fviz_dend(health_clusters_hcut)
+
+
+
+# dissimilarity matrix
+d <- dist(health_scaled, method = "euclidean")
+
+# complete linkage
+hc1 <- hclust(d, method = "complete" )
+
+# dendrogram
+plot(hc1, cex = 0.6, hang = -1)
 
 library(factoextra)
 
@@ -117,9 +127,4 @@ aggregate(health, Quality.of.Sleep ~ cluster, mean)
 
 aggregate(health, Sleep.Duration ~ cluster, mean)
 
-# optimal number of clusters - elbow
-opt<-Optimal_Clusters_KMeans(health_scaled, max_clusters=10, plot_clusters = TRUE)
 
-get_clust_tendency(health_scaled, 2, graph=TRUE, gradient=list(low="blue",  high="white"))
-# optimal number of clusters - silhouette
-opt<-Optimal_Clusters_KMeans(health_scaled, max_clusters=10, plot_clusters=TRUE, criterion="silhouette")
