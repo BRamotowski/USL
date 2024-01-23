@@ -43,7 +43,7 @@ summary(health$Physical.Activity.Level)
 ## phisical activti level is given in minutes per day 
 health$Physical.Activity.Level =  ifelse(health$Physical.Activity.Level<=30, "Under 30 min of physical activity a day", 
                                   ifelse(health$Physical.Activity.Level<=60, "30-60 min of physical activity a day",
-                                         ifelse(health$Physical.Activity.Level>60, "Over 60 min of physical activity a day",NA)))
+                                  ifelse(health$Physical.Activity.Level>60, "Over 60 min of physical activity a day",NA)))
 
 summary(health$Stress.Level)
 
