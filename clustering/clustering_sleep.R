@@ -30,6 +30,21 @@ health
 #chcking data structure
 str(health)
 
+
+#plot columns
+hist(health$Stress.Level)
+hist(health$Sleep.Duration)
+hist(health$Quality.of.Sleep)
+
+
+for (i in colnames(health)) {
+  hist(health[,i], main = paste("Plot of ", i))
+}
+
+str(health)
+
+dist(health$Quality.of.Sleep)
+
 #data summary
 summary(health)
 
@@ -38,8 +53,7 @@ health[!complete.cases(health), ]
 
 is.na(health)
 
-health_int=health[,c(1,3,4,5,6,7,8,11,12)]
-str(health_int)
+
 
 #converting chr to factor
 health$Gender<-as.factor(health$Gender)
@@ -68,13 +82,9 @@ M <- cor(health_matrix)
 corrplot(M, method = "number", number.cex = 0.75, order="hclust")
 
 
-#plot columns
 
 
-for (i in colnames(health)) {
-  plot(health[,i], main = paste("Plot of ", i))
-}
-str(health)
+
 
 
 #scaling values
@@ -87,15 +97,29 @@ d <- fviz_nbclust(health_scaled, FUNcluster = hcut, method = "silhouette") + the
 e <- fviz_nbclust(health_scaled, FUNcluster = cluster::fanny, method = "silhouette") + theme_classic() 
 grid.arrange(a, b, c, d, e, ncol=2)
 a
+b
+c
+d
+e
 
+health_clusters_kmeans<- kmeans(health_scaled, 4)
+
+health_clusters_kmeans$size
+health_clusters_kmeans$cluster
+health$cluster<-health_clusters_kmeans$cluster
 
 library(factoextra)
 
+# general characteristics of clusters
+aggregate(health, Stress.Level ~ cluster, mean)
 
+aggregate(health, Quality.of.Sleep ~ cluster, mean)
+
+aggregate(health, Sleep.Duration ~ cluster, mean)
 
 # optimal number of clusters - elbow
 opt<-Optimal_Clusters_KMeans(health_scaled, max_clusters=10, plot_clusters = TRUE)
 
-get_clust_tendency(health_scaled, 2, graph=TRUE, gradient=list(low="blue",  high="white"), seed=1234)
+get_clust_tendency(health_scaled, 2, graph=TRUE, gradient=list(low="blue",  high="white"))
 # optimal number of clusters - silhouette
 opt<-Optimal_Clusters_KMeans(health_scaled, max_clusters=10, plot_clusters=TRUE, criterion="silhouette")
