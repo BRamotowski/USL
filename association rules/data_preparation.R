@@ -52,6 +52,7 @@ health$Stress.Level =  ifelse(health$Stress.Level<=2, "Very low stressed",
                                   ifelse(health$Stress.Level<=6, "Medium stressed",
                                          ifelse(health$Stress.Level<=8, "Stressed",
                                                 ifelse(health$Stress.Level>8, "Very stressed",NA)))))                                                 
+#check the distribution
 
 summary(health$Blood.Pressure)
 #Blood Preasue variable is charactr data type
@@ -75,8 +76,8 @@ health$Daily.Steps =  ifelse(health$Daily.Steps<=5000, "Sedentary daily steps",
 summary(health$BMI.Category)
 unique(health$BMI.Category)
 health$BMI.Category =ifelse(health$BMI.Category=="Normal", "Normal weight",
-                            ifelse(health$BMI.Category=="Overweight", "Overweight",
-                                   ifelse(health$BMI.Category=="Obese", "Obese",NA)))
+                     ifelse(health$BMI.Category=="Overweight", "Overweight",
+                     ifelse(health$BMI.Category=="Obese", "Obese",NA)))
 
 health_clean=health[c(2:13)]
 
@@ -97,9 +98,9 @@ head(ctab,5)
 #standard rules
 rules.transactions<-apriori(transactions, parameter=list(supp=0.1, conf=0.5))
 rules.transactionsSorted<-sort(rules.transactions, by="lift", decreasing=TRUE)
-rules_head<-head(rules.transactionsSorted,10)
 inspect(head(rules.transactionsSorted))
 
+rules_head<-head(rules.transactionsSorted,10)
 plot(rules_head, method="graph")
 
 #stressed rule
