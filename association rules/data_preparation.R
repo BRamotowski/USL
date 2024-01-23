@@ -2,6 +2,8 @@ install.packages("tidyverse")
 install.packages("arules")
 library(tidyverse)
 library(arules)
+library(arulesViz)
+
 health<-read.csv("Sleep_health_and_lifestyle_dataset.csv")
 health
 
@@ -91,10 +93,14 @@ ctab<-crossTable(transactions, sort=TRUE)
 ctab<-crossTable(transactions, measure="count", sort=TRUE) 
 head(ctab,5)
 
+
 #standard rules
 rules.transactions<-apriori(transactions, parameter=list(supp=0.1, conf=0.5))
 rules.transactionsSorted<-sort(rules.transactions, by="lift", decreasing=TRUE)
+rules_head<-head(rules.transactionsSorted,10)
 inspect(head(rules.transactionsSorted))
+
+plot(rules_head, method="graph")
 
 #stressed rule
 rulesStressed<-apriori(data=transactions, parameter=list(supp=0.1, conf=0.1), appearance=list(default="lhs", rhs="Stressed"), control=list(verbose=F)) 
