@@ -1,0 +1,81 @@
+---
+title: "Clustering"
+output: html_document
+date: "2024-01-29"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, include=F}
+library(gridExtra)
+library(factoextra)
+library(flexclust)
+library(fpc)
+### library(clustertend)
+library(hopkins)
+library(cluster)
+library(ClusterR)
+library(stats)
+library(corrplot)
+```
+
+```{r}
+#reading data
+health<-read.csv("Sleep_health_and_lifestyle_dataset.csv")
+head(health,10)
+
+#chcking data structure
+str(health)
+
+#data summary
+summary(health)
+
+#checking data for null values
+health<-health[complete.cases(health), ]
+
+#converting chr to factor
+health$BMI.Category<-as.factor(health$BMI.Category)
+health$Blood.Pressure <-as.factor(health$Blood.Pressure)
+
+#converting factor to integer
+health$BMI.Category<-as.integer(health$BMI.Category)
+health$Blood.Pressure <-as.integer(health$Blood.Pressure)
+
+health<-health[c(3,5,6,7,8,9,10,11,12)]
+
+str(health)
+head(health,10)
+```
+
+### plot columns
+
+```{r }
+
+for (i in colnames(health)) {
+  hist(health[,i], main = paste("Plot of ", i))
+}
+```
+
+```{r}
+health_matrix <- data.matrix(health, rownames.force = NA)
+M <- cor(health_matrix)
+corrplot(M, method = "number", number.cex = 0.75, order="hclust")
+```
+
+```{r}
+#scaling values
+health_scaled<-scale(health)
+
+##clustering
+
+a <- fviz_nbclust(health_scaled, FUNcluster = kmeans, method = "silhouette") + theme_classic() 
+b <- fviz_nbclust(health_scaled, FUNcluster = cluster::pam, method = "silhouette") + theme_classic() 
+c <- fviz_nbclust(health_scaled, FUNcluster = cluster::clara, method = "silhouette") + theme_classic() 
+d <- fviz_nbclust(health_scaled, FUNcluster = hcut, method = "silhouette") + theme_classic() 
+e <- fviz_nbclust(health_scaled, FUNcluster = cluster::fanny, method = "silhouette") + theme_classic() 
+grid.arrange(a, b, c, d, e, ncol=2)
+```
+
+

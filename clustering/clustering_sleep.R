@@ -17,6 +17,8 @@ library(hopkins)
 library(cluster)
 library(ClusterR)
 library(stats)
+library(corrplot)
+
 
 loadedNamespaces()
 
@@ -56,12 +58,7 @@ write.csv(health, file = 'health_num.csv')
 
 health<-read.csv('health_num.csv')
 
-#plot columns
-hist(health$Stress.Level)
-hist(health$Sleep.Duration)
-hist(health$Quality.of.Sleep)
-
-
+#plot columns 
 for (i in colnames(health)) {
   hist(health[,i], main = paste("Plot of ", i))
 }
@@ -69,7 +66,7 @@ for (i in colnames(health)) {
 
 
 #correlation matrix 
-library(corrplot)
+
 
 health_matrix <- data.matrix(health, rownames.force = NA)
 M <- cor(health_matrix)
@@ -118,7 +115,7 @@ hc1 <- hclust(d, method = "complete" )
 # dendrogram
 plot(hc1, cex = 0.6, hang = -1)
 
-library(factoextra)
+
 
 # general characteristics of clusters
 aggregate(health, Stress.Level ~ cluster, mean)

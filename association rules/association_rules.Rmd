@@ -8,11 +8,16 @@ date: "2024-01-28"
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r}
+```{r, include=FALSE}
 library(tidyverse)
 library(arules)
 library(arulesViz)
 ```
+
+## Introduction
+
+The goal of this project is to determin
+
 
 ## Sleep, health and lifestyle dataset - association rules
 
@@ -172,23 +177,32 @@ inspect(head(rules.transactionsSorted))
 rules_head <- head(rules.transactionsSorted,10)
 plot(rules_head, method="graph")
 ```
+### Stressed rule
 
+## Right hand side (consequent)
+
+We want to determine factors that has consequence of being "stressed"
 ```{r}
-#stressed rule
 rulesStressed<-apriori(data=transactions, parameter=list(supp=0.1, conf=0.1), appearance=list(default="lhs", rhs="Stressed"), control=list(verbose=F)) 
 rulesStressedSorted<-sort(rulesStressed, by="confidence", decreasing=TRUE)
 inspect(head(rulesStressedSorted))
 ```
 
+## Left hand side (antecedent)
 ```{r}
-#overweight rule
+rulesStressed<-apriori(data=transactions, parameter=list(supp=0.1, conf=0.1), appearance=list(default="rhs", lhs="Stressed"), control=list(verbose=F)) 
+rulesStressedSorted<-sort(rulesStressed, by="confidence", decreasing=TRUE)
+inspect(head(rulesStressedSorted))
+```
+
+### overweight rule
+```{r}
 rulesOverweight<-apriori(data=transactions, parameter=list(supp=0.1, conf=0.1), appearance=list(default="lhs", rhs="Overweight"), control=list(verbose=F)) 
 rulesOverweightSorted<-sort(rulesOverweight, by="confidence", decreasing=TRUE)
 inspect(head(rulesOverweightSorted))
 ```
-
+### Insomnia rule
 ```{r}
-#Insomnia rule
 rulesInsomnia<-apriori(data=transactions, parameter=list(supp=0.1, conf=0.1), appearance=list(default="lhs", rhs="Insomnia"), control=list(verbose=F)) 
 rulesInsomniaSorted<-sort(rulesInsomnia, by="confidence", decreasing=TRUE)
 inspect(head(rulesInsomniaSorted))
