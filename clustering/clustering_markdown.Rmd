@@ -20,6 +20,10 @@ library(ClusterR)
 library(stats)
 library(corrplot)
 ```
+## Introduction
+
+Objective of this project is to gain insights into the relation between sleep patterns and lifestyle factors using unsupervised learning techniques. 
+Identifying clusters of individuals with similar sleep patterns and lifestyle characteristics can contribute to the development of tailored strategies and better recommendations for improving sleep quality and overall well-being.
 
 ```{r}
 #reading data
@@ -48,9 +52,13 @@ health<-health[c(3,5,6,7,8,9,10,11,12)]
 str(health)
 head(health,10)
 ```
+## Exploratory data anlysis
+
+Now i will examine the dataset, identify anomalies, and gain insights through visualizations. This process helps us understand the data's structure, select relevant features, and prepare for subsequent clustering algorithms.
 
 ### plot columns
 
+At first i want to show plots of every column. Understanding data distributes might be very useful.
 ```{r }
 
 for (i in colnames(health)) {
@@ -64,7 +72,7 @@ M <- cor(health_matrix)
 corrplot(M, method = "number", number.cex = 0.75, order="hclust")
 ```
 
-```{r}
+```{r,echo=F}
 #scaling values
 health_scaled<-scale(health)
 
@@ -75,6 +83,10 @@ b <- fviz_nbclust(health_scaled, FUNcluster = cluster::pam, method = "silhouette
 c <- fviz_nbclust(health_scaled, FUNcluster = cluster::clara, method = "silhouette") + theme_classic() 
 d <- fviz_nbclust(health_scaled, FUNcluster = hcut, method = "silhouette") + theme_classic() 
 e <- fviz_nbclust(health_scaled, FUNcluster = cluster::fanny, method = "silhouette") + theme_classic() 
+```
+
+```{r}
+
 grid.arrange(a, b, c, d, e, ncol=2)
 ```
 
