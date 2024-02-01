@@ -1,4 +1,4 @@
-library(corrplot) # to plot nice correlations
+library(corrplot) 
 
 health<-read.csv("Sleep_health_and_lifestyle_dataset.csv")
 health<-health[,c(2:13)]

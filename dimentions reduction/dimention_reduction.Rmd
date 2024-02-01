@@ -1,0 +1,166 @@
+---
+title: "dimention reduction"
+output: html_document
+date: "2024-01-25"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r,include=FALSE}
+library(corrplot) 
+library(factoextra)
+library(gridExtra)
+```
+
+## Introduction 
+
+Dimension reduction simplifies complex datasets by keeping important information and eliminating unnecessary elements. By reducing the number of features, it not only facilitates faster computations but also allows for a clearer representation of the underlying structures, making it easier for machine learning models to do their work. Additionally with this method we can create more effective visualizations of our data.
+
+Link to kaggle data set: <https://www.kaggle.com/datasets/uom190346a/sleep-health-and-lifestyle-dataset>
+
+
+Dataset Columns descriptions form Kaggle:
+
+Person ID: An identifier for each individual.
+
+Gender: The gender of the person (Male/Female).
+
+Age: The age of the person in years.
+
+Occupation: The occupation or profession of the person.
+
+Sleep Duration (hours): The number of hours the person sleeps per day.
+
+Quality of Sleep (scale: 1-10): A subjective rating of the quality of sleep, ranging from 1 to 10.
+
+Physical Activity Level (minutes/day): The number of minutes the person engages in physical activity daily.
+
+Stress Level (scale: 1-10): A subjective rating of the stress level experienced by the person, ranging from 1 to 10.
+
+BMI Category: The BMI category of the person (e.g., Underweight, Normal, Overweight).
+
+Blood Pressure (systolic/diastolic): The blood pressure measurement of the person, indicated as systolic pressure over diastolic pressure.
+
+Heart Rate (bpm): The resting heart rate of the person in beats per minute.
+Daily Steps: The number of steps the person takes per day.
+
+Sleep Disorder: The presence or absence of a sleep disorder in the person (None, Insomnia, Sleep Apnea).
+
+### Reading data
+```{r}
+health<-read.csv("Sleep_health_and_lifestyle_dataset.csv")
+health<-health[,c(2:13)]
+
+```
+
+### Converting data to apropriete datatype 
+
+```{r}
+#converting chr to factor
+health$Gender<-as.factor(health$Gender)
+health$Occupation<-as.factor(health$Occupation)
+health$BMI.Category<-as.factor(health$BMI.Category)
+health$Blood.Pressure <-as.factor(health$Blood.Pressure)
+health$Sleep.Disorder  <-as.factor(health$Sleep.Disorder)
+
+#converting factor to numeric 
+health$Gender<-as.numeric(health$Gender)
+health$Occupation<-as.numeric(health$Occupation)
+health$BMI.Category<-as.numeric(health$BMI.Category)
+health$Blood.Pressure <-as.numeric(health$Blood.Pressure)
+health$Sleep.Disorder  <-as.numeric(health$Sleep.Disorder)
+
+health_scaled<-scale(health)
+```
+### Variables plots
+
+```{r}
+
+for (i in colnames(health)) {
+  hist(health[,i], main = paste("Plot of ", i))
+}
+```
+
+### Correlation Matrix
+```{r}
+health.cor<-cor(health_scaled, method="pearson") 
+print(health.cor, digits=2)
+corrplot(health.cor, order ="alphabet", tl.cex=0.6)
+corrplot(health.cor,method = "number", order ="alphabet", tl.cex=0.6,number.cex = 0.6)
+```
+In the dataset, we observe some positively correlated variables. There is a high correlation between the quality of sleep and sleep duration, as well as between daily steps and physical activity level. Additionally, we can identify some negatively correlated variables, such as the quality of sleep and stress level, or stress level and sleep duration.
+
+## Dimension reduction
+
+
+Before engaging in dimension reduction with PCA, let's explore the outcomes of utilizing Multidimensional Scaling (MDS)
+
+### MDS
+```{r}
+dist.health<-dist(t(health_scaled)) 
+mds1<-cmdscale(dist.health) 
+summary(mds1)	
+
+plot(mds1)
+head(mds1)
+```
+We have indeed received some appropriately dimension-reduced data, but the main component of this project relies on PCA.
+
+### PCA
+
+
+```{r}
+pca = prcomp(health_scaled, center=FALSE, scale=FALSE)
+```
+
+#### Choosing number of components 
+
+
+```{r}
+fviz_eig(pca, choice = "eigenvalue",  addlabels = TRUE)
+```
+
+The Kaiser rule focuses on eigenvalues of components, which are like scores indicating how well a component summarizes data. When an eigenvalue is 1, it means the component has as much information as a single variable. According to this rule, we should choose only those components with eigenvalues greater than 1.
+In this case we should choose 4 components.
+
+```{r}
+fviz_eig(pca, choice = 'variance', addlabels = TRUE)
+
+summary(pca)
+
+plot(summary(pca)$importance[3,])
+```
+From the graphs we can see that 4 components explains over 80% of variation.
+
+#### Variables PCA plot 
+
+```{r}
+fviz_pca_var(pca, col.var="contrib")
+```
+#### Individuals PCA plot 
+```{r}
+fviz_pca_ind(pca, col.ind="contrib", geom = "point")
+```
+
+
+#### Contribution of variables
+
+```{r}
+PC1 <- fviz_contrib(pca, choice = "var", axes = 1)
+PC2 <- fviz_contrib(pca, choice = "var", axes = 2)
+PC3 <- fviz_contrib(pca, choice = "var", axes = 3)
+PC4 <- fviz_contrib(pca, choice = "var", axes = 4)
+
+grid.arrange(PC1, PC2, PC3, PC4, ncol = 2, nrow=2)
+
+```
+
+The first component consists mainly of the quality of sleep, age, stress level, and sleep duration variables. The second component consists mainly of BMI category, blood pressure, occupation, and sleep duration. The third consists of physical activity level, daily steps, and sleep disorder. The fourth consists of sleep disorder, heart rate, daily steps, and occupation.
+
+
+## Conclusions 
+
+The dimensions of our health dataset were effectively reduced using the PCA. The analysis indicate that our health data can be represented by 4 components. This allowed us to explain  more than 80% of the dataset variance.
+
