@@ -16,8 +16,8 @@ library(arulesViz)
 
 ## Introduction
 
-The goal of this project is to determin
-
+The goal of this project is to determin relations between sleep patterns, lifestyle choices and health metrics. 
+Association rules help the us uncover relationships between different parts of the data. In this project, association rules helps us understand the complex connections within the Sleep, Health, and Lifestyle dataset. The goal is to uncover valuable information that can guide people in sleeping better, making healthier choices, and feeling their best. 
 
 ## Sleep, health and lifestyle dataset - association rules
 
@@ -31,6 +31,7 @@ data summary
 ```{r summary}
 
 summary(health)
+
 ```
 
 ```{r}

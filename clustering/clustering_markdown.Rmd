@@ -20,10 +20,16 @@ library(ClusterR)
 library(stats)
 library(corrplot)
 ```
+
 ## Introduction
 
-Objective of this project is to gain insights into the relation between sleep patterns and lifestyle factors using unsupervised learning techniques. 
-Identifying clusters of individuals with similar sleep patterns and lifestyle characteristics can contribute to the development of tailored strategies and better recommendations for improving sleep quality and overall well-being.
+Objective of this project is to gain insights into the relation between sleep patterns and lifestyle factors using unsupervised learning techniques. Identifying clusters of individuals with similar sleep patterns and lifestyle characteristics can contribute to the development of better strategies and recommendations for improving sleep quality and overall well-being.
+
+Link to kaggle data set: <https://www.kaggle.com/datasets/uom190346a/sleep-health-and-lifestyle-dataset>
+
+### Reading Data
+
+In this project at first we have to prepare and clean the data for clustering. We begin with reading the data from a CSV file, examining its structure, and summarizing key information. We also convert certain variables to the appropriate data types.
 
 ```{r}
 #reading data
@@ -47,19 +53,23 @@ health$Blood.Pressure <-as.factor(health$Blood.Pressure)
 health$BMI.Category<-as.integer(health$BMI.Category)
 health$Blood.Pressure <-as.integer(health$Blood.Pressure)
 
+health_org<-health
+
 health<-health[c(3,5,6,7,8,9,10,11,12)]
 
 str(health)
 head(health,10)
 ```
+
 ## Exploratory data anlysis
 
-Now i will examine the dataset, identify anomalies, and gain insights through visualizations. This process helps us understand the data's structure, select relevant features, and prepare for subsequent clustering algorithms.
+Now we will examine the dataset, identify anomalies, and gain insights through visualizations. This process helps us understand the data's structure, select relevant features, and prepare for subsequent clustering algorithms.
 
 ### plot columns
 
-At first i want to show plots of every column. Understanding data distributes might be very useful.
-```{r }
+At first we want to show plots of every column. Understanding data distributes might be very useful.
+
+```{r}
 
 for (i in colnames(health)) {
   hist(health[,i], main = paste("Plot of ", i))
@@ -72,22 +82,125 @@ M <- cor(health_matrix)
 corrplot(M, method = "number", number.cex = 0.75, order="hclust")
 ```
 
-```{r,echo=F}
+```{r}
+
+get_clust_tendency(health, 2, graph=T)
+```
+
+```{r}
 #scaling values
 health_scaled<-scale(health)
+```
+
+```{r}
+
+get_clust_tendency(health_scaled, 2, graph=T)
+
+head(dist(health_scaled, method = "euclidean"),10)
+```
+
+## Clustering
+
+### Optimal number of clusters
+
+In this section focusing on clustering, we aim to identify the optimal number of clusters within the preprocessed health data set. We will evaluate the kmeans, pam, clara, hcut, fanny with silhouette method to determine the most suitable cluster configuration.
+
+We will eval
+
+```{r,echo=F}
 
 ##clustering
 
 a <- fviz_nbclust(health_scaled, FUNcluster = kmeans, method = "silhouette") + theme_classic() 
 b <- fviz_nbclust(health_scaled, FUNcluster = cluster::pam, method = "silhouette") + theme_classic() 
-c <- fviz_nbclust(health_scaled, FUNcluster = cluster::clara, method = "silhouette") + theme_classic() 
-d <- fviz_nbclust(health_scaled, FUNcluster = hcut, method = "silhouette") + theme_classic() 
-e <- fviz_nbclust(health_scaled, FUNcluster = cluster::fanny, method = "silhouette") + theme_classic() 
+c <- fviz_nbclust(health_scaled, FUNcluster = hcut, method = "silhouette") + theme_classic() 
+# e <- fviz_nbclust(health_scaled, FUNcluster = cluster::fanny, method = "silhouette") + theme_classic() 
 ```
 
 ```{r}
 
-grid.arrange(a, b, c, d, e, ncol=2)
+grid.arrange(a, b, c, ncol=2)
+```
+
+### Using clustering algorithms
+
+#### K-means
+
+In this case i decided to chose 4 clusters. It seems to have fair silhouette value and we
+
+```{r}
+health_clusters_kmeans_4<- kmeans(health_scaled, 4)
+```
+
+```{r}
+
+fviz_cluster(list(data=health_scaled, cluster=health_clusters_kmeans_4$cluster), 
+             ellipse.type="norm", geom="point", stand=FALSE, palette="jco", ggtheme=theme_classic())
+
+```
+
+```{r}
+health_clusters_kmeans_4$size
+health_clusters_kmeans_4$cluster
+health$cluster_kmeans<-health_clusters_kmeans_4$cluster
+```
+
+```{r}
+# statistics by clustered groups
+d1<-cclust(health_scaled, 3, dist="euclidean") #flexclust::
+stripes(d1) #flexclust::
+```
+
+```{r}
+# general characteristics of clusters
+colnames(health)
+for (i in colnames(subset(health, select = -cluster_kmeans))) {
+  
+  print(i + aggregate(health, health[[i]] ~ cluster_kmeans, mean))
+}
+
+```
+
+#### PAM
+
+```{r}
+health_clusters_pam_6<- pam(health_scaled, 6)
+```
+
+```{r}
+
+fviz_cluster(health_clusters_pam_6, 
+             data = health_scaled, 
+             elipse.type = 'convex', 
+             main='Pam 6',
+             show_labels = FALSE)
+
+```
+
+```{r}
+fviz_silhouette(health_clusters_pam_6,ncol=2)
+```
+
+```{r}
+# general characteristics of clusters
+aggregate(health, Stress.Level ~ cluster_kmeans, mean)
+
+aggregate(health, Quality.of.Sleep ~ cluster_kmeans, mean)
+
+aggregate(health, Sleep.Duration ~ cluster_kmeans, mean)
+```
+
+#### hierarchical
+
+```{r}
+health_clusters_diana <- eclust(health_scaled, k=6, FUNcluster = 'diana', hc_method = 'ward.D')
+
+pltree(health_clusters_diana, hang = -1, main = "DIANA", cex = 0.47)
+rect.hclust(health_clusters_diana, k=6, border='red')
+
+health_clusters_diana_stats <- cluster.stats(dist(health_scaled), health_clusters_diana$cluster)
+health_clusters_diana_stats$avg.silwidth
+health_clusters_diana_stats$cluster.size
 ```
 
 
